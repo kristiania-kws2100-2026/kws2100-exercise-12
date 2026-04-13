@@ -8,7 +8,14 @@
     "dev": "concurrently npm:dev:client npm:dev:server",
     "dev:client": "vite",
     "dev:server": "cd server && npm run dev",
-    "prepare": "husky"
+    "prepare": "husky",
+    "db:load:docker": "npm run db:grunnskoler:download && npm run db:grunnskoler:load:docker",
+    "db:grunnskoler:download": "download --extract --out tmp/ https://nedlasting.geonorge.no/geonorge/Befolkning/Grunnskoler/PostGIS/Befolkning_0000_Norge_25833_Grunnskoler_PostGIS.zip",
+    "db:grunnskoler:load:docker": "npm run db:psql:docker < tmp/Befolkning_0000_Norge_25833_Grunnskoler_PostGIS.sql",
+    "db:psql:docker": "docker exec -i /postgis /usr/bin/psql --user postgres",
+    "db:load:server": "npm run db:init:server && npm run db:grunnskoler:download && npm run db:grunnskoler:load:server",
+    "db:init:server": "echo create extension if not exists postgis | psql $DATABASE_URL",
+    "db:grunnskoler:load:server": "psql $DATABASE_URL < tmp/Befolkning_0000_Norge_25833_Grunnskoler_PostGIS.sql"
   },
   "repository": {
     "type": "git",
@@ -31,6 +38,7 @@
     "vite": "^8.0.8"
   },
   "dependencies": {
+    "download-cli": "^1.1.1",
     "ol": "^10.8.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5"
